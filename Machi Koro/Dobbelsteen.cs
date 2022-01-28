@@ -9,10 +9,10 @@ namespace Machi_Koro
     class Dobbelsteen
     {
         public List<Dobbel> Dobbelstenen;
-        public List<Dobbel> Gedobbeld;
-
+        public Random rand;
         public Dobbelsteen()
         {
+            rand = new Random();
             Dobbelstenen = new List<Dobbel>()
             {
                 new Dobbel() { image = "../../Resources/one.png", dobbelnummer = 1},
@@ -24,35 +24,10 @@ namespace Machi_Koro
 
             };
         }
-        public void RandomNummer()
+        public Dobbel RandomNummer()
         {
-            Random rand = new Random();
-            Dobbel temp;
-            {
-                for (int draaien = 0; draaien < 50; draaien++)
-                {
-                    for (int i = 0; i < Dobbelstenen.Count; i++)
-                    {
-                        int Omdraaien = rand.Next(2);
-                        temp = Dobbelstenen[i];
-                        Dobbelstenen[i] = Dobbelstenen[Omdraaien];
-                        Dobbelstenen[Omdraaien] = temp;
-                    }
-                }
-            }
-        }
-        public void Dobbelen()
-        {
-            Gedobbeld = new List<Dobbel>();
-            for (int a = 0; a < 1; a++)
-            {
-                Gedobbeld.Add(Dobbelstenen[0]);
-            }
-        }
-        public Dobbel GetAndRemoveDobbel()
-        {
-            Dobbel dobbel = Dobbelstenen[0];
-            return dobbel;
+            return Dobbelstenen[rand.Next(0, 5)];
+           
         }
     }
 }

@@ -100,6 +100,7 @@
     <Content Include="Resources\AmusementPark.png" />
     <Content Include="Resources\AmusementParkB.png" />
     <Content Include="Resources\AppleOrchard.png" />
+    <None Include="Resources\background2.jpg" />
     <Content Include="Resources\Bakery.jpg" />
     <Content Include="Resources\BusinessCenter.png" />
     <Content Include="Resources\Cafe.png" />

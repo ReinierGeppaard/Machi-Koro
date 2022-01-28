@@ -8,15 +8,19 @@ namespace Machi_Koro
 {
     class Speler
     {
-        public List<OranjeKaart> OranjeSpelerKaarten;
+        public List<Kaart> SpelerKaarten;
       
         public Speler()
         {
-            OranjeSpelerKaarten = new List<OranjeKaart>();
+            SpelerKaarten = new List<Kaart>();
         }
-        public void VoegKaartToe(OranjeKaart oranjekaart)
+        public void VoegKaartToe(Kaart kaart)
         {
-            OranjeSpelerKaarten.Add(oranjekaart);
+            SpelerKaarten.Add(kaart);
         }  
+        public void HaalKaartWeg(Kaart kaart)
+        {
+            SpelerKaarten.RemoveAt(0);
+        }
     }
 }
