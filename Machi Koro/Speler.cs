@@ -20,7 +20,7 @@ namespace Machi_Koro
         }  
         public void HaalKaartWeg(Kaart kaart)
         {
-            SpelerKaarten.RemoveAt(0);
+            SpelerKaarten.Remove(kaart);
         }
     }
 }

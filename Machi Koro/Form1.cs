@@ -13,52 +13,49 @@ namespace Machi_Koro
 {
     public partial class Form1 : Form
     {
-        Speler speler = new Speler();
+
         Dobbelsteen Dobbelstenen = new Dobbelsteen();
-        Kaart OranjeKaarten = new Kaart();
-        Kaart BlauweKaarten = new Kaart();
-        Kaart GroeneKaarten = new Kaart();
-        Kaart RodeKaarten = new Kaart();
-        Kaart PaarseKaarten = new Kaart();
+        Object[] test = new Object[] { 1, 2 };
+        int AantalMensen = 1;
+        public static int[] Balances = new int[4];
+        int HuidigeSpeler = 0;
 
-        int AantalSpelers = 2;
+        Button[][] KoopKnoppen;
+        Label[] SpelerLabels;
+        internal static Speler[] spelers;
+        internal static bool[][] OranjeKaarten;
+        bool doubles = false;
+        bool gerold = false;
+        static Random rand = new Random();
 
-        int BalanceP1 = 0;
-        int BalanceP2 = 0;
-        int BalanceP3 = 0;
-        int BalanceP4 = 0;
         int P1Kaarten = 0;
         int P2Kaarten = 0;
         int P3Kaarten = 0;
         int P4Kaarten = 0;
-
         List<PictureBox> DobbelsteenPicturebox = new List<PictureBox>();
-        List<PictureBox> P1Picturebox = new List<PictureBox>();
-        List<PictureBox> P2Picturebox = new List<PictureBox>();
-        List<PictureBox> P3Picturebox = new List<PictureBox>();
-        List<PictureBox> P4Picturebox = new List<PictureBox>();
 
-
+        PictureBox[][] PlayerHands;
 
         public Form1()
         {
             InitializeComponent();
-            
+            SpelerLabels = new Label[]
+            {
+                Player1L, Player2L, Player3L, Player4L
+            };
+            NumSpelerBox.SelectedIndex = 0;
+            StartSpel.Enabled = false;
             DobbelsteenPicturebox.Add(Dobbel1P);
             DobbelsteenPicturebox.Add(Dobbel2P);
             Dobbel1.Enabled = false;
             Dobbel2.Enabled = false;
             KoopKnoppenUit();
 
-            BalanceP1 = 0;
-            BalP1.Text = "Balance: " + BalanceP1;
-            BalanceP2 = 0;
-            BalP2.Text = "Balance: " + BalanceP2;
-            BalanceP3 = 0;
-            BalP3.Text = "Balance: " + BalanceP3;
-            BalanceP4 = 0;
-            BalP4.Text = "Balance: " + BalanceP4;
-            LabelBlank();
+            
+            BalP1.Text = "Balance: 0";
+            BalP2.Text = "Balance: 0";
+            BalP3.Text = "Balance: 0";
+            BalP4.Text = "Balance: 0";
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -72,217 +69,210 @@ namespace Machi_Koro
             Dobbel1P.ImageLocation = Path.GetFullPath(dobbel.image);
             int uitkomst = dobbel.dobbelnummer;
             CheckEffecten(uitkomst);
+            Dobbel1.Enabled = false;
+            Dobbel2.Enabled = false;
+            for (int button = 0; button < 4; button++)
+            {
+                if (!OranjeKaarten[HuidigeSpeler][button])
+                {
+                    KoopKnoppen[HuidigeSpeler][button].Enabled = true;
+                }
+            }
+            EindigBeurtBtn.Enabled = true;
+            gerold = true;
         }
 
         private void Dobbel2_Click(object sender, EventArgs e)
         {
             Dobbel dobbel = Dobbelstenen.RandomNummer();
             Dobbel1P.ImageLocation = Path.GetFullPath(dobbel.image);
-
-            int uitkomst = dobbel.dobbelnummer;
-
+            int uitkomst1 = dobbel.dobbelnummer;
             dobbel = Dobbelstenen.RandomNummer();
             Dobbel2P.ImageLocation = Path.GetFullPath(dobbel.image);
-            uitkomst += dobbel.dobbelnummer;
-            CheckEffecten(uitkomst);
+            int uitkomst2 = dobbel.dobbelnummer;
+            CheckEffecten(uitkomst1 + uitkomst2);
+            Dobbel1.Enabled = false;
+            Dobbel2.Enabled = false;
+            for (int button = 0; button < 4; button++)
+            {
+                if (!OranjeKaarten[HuidigeSpeler][button])
+                {
+                    KoopKnoppen[HuidigeSpeler][button].Enabled = true;
+                }
+            }
+            EindigBeurtBtn.Enabled = true;
+            if (uitkomst1 == uitkomst2 && OranjeKaarten[HuidigeSpeler][2])
+            {
+                doubles = true;
+            }
+            gerold = true;
+            
         }
 
         private void StartSpel_Click(object sender, EventArgs e)
         {
+            spelers = new Speler[]
+            {
+                new Speler(), new Speler(), new Speler(), new Speler()
+            };
+            PlayerHands = new PictureBox[][]
+            {
+                new PictureBox[]
+                {
+                    P11, P12, P13, P14, P15, P16, P17, P18, P19, P110, P111, P112, P113, P114, P115, P116
+                },
+                new PictureBox[]
+                {
+                    P21, P22, P23, P24, P25, P26, P27, P28, P29, P210, P211, P212, P213, P214, P215, P216
+                },
+                new PictureBox[]
+                {
+                    P31, P32, P33, P34, P35, P36, P37, P38, P39, P310, P311, P312, P313, P314, P315, P316
+                },
+                new PictureBox[]
+                {
+                    P41, P42, P43, P44, P45, P46, P47, P48, P49, P410, P411, P412, P413, P414, P415, P416
+                }
+            };
+            OranjeKaarten = new bool[][]
+            {
+                new bool[4], new bool[4], new bool[4], new bool[4]
+            };
+            AantalMensen = Int32.Parse((string) NumSpelerBox.SelectedItem);
             StartSpel.Enabled = false;
             Dobbel1.Enabled = true;
-            Dobbel2.Enabled = true;
+            Dobbel2.Enabled = false;
 
-            KoopKnoppenAan();
 
-            BalanceP1 = 103;
-            BalanceP2 = 103;
-            BalanceP3 = 103;
-            BalanceP4 = 103;
+            for (int speler = 0; speler < 4; speler++)
+            {
+                spelers[speler].VoegKaartToe(Kaart.WheatField);
+                spelers[speler].VoegKaartToe(Kaart.Bakery);
+                UpdateKaarten(speler);
+            }
 
-            BalP1.Text = "Balance: " + BalanceP1;
-            BalP2.Text = "Balance: " + BalanceP2;
-            BalP3.Text = "Balance: " + BalanceP3;
-            BalP4.Text = "Balance: " + BalanceP4;
+            KoopKnoppenUit();
+
+            HuidigeSpeler = 3;
+            EindigBeurt();
+            NumSpelerBox.Enabled = false;
+
+            Balances[0] = 3;
+            Balances[1] = 3;
+            Balances[2] = 3;
+            Balances[3] = 3;
+
+            BalP1.Text = "Balance: " + Balances[0];
+            BalP2.Text = "Balance: " + Balances[1];
+            BalP3.Text = "Balance: " + Balances[2];
+            BalP4.Text = "Balance: " + Balances[3];
 
             //Blauwe Speelkaarten
-            BlauweKaart Wheatfield = BlauweKaarten.GetAndRemoveWheatField();
-            WheatFieldPBox.ImageLocation = Path.GetFullPath(Wheatfield.image);
-            WheatFieldL.Text = "6";
-
-            BlauweKaart Ranch = BlauweKaarten.GetAndRemoveRanch();
-            RanchPBox.ImageLocation = Path.GetFullPath(Ranch.image);
-            RanchL.Text = "6";
-
-            BlauweKaart Mine = BlauweKaarten.GetAndRemoveMine();
-            MinePBox.ImageLocation = Path.GetFullPath(Mine.image);
-            MineL.Text = "6";
-
-            BlauweKaart Forest = BlauweKaarten.GetAndRemoveForest();
-            ForestPBox.ImageLocation = Path.GetFullPath(Forest.image);
-            ForestL.Text = "6";
-
-            BlauweKaart AppleOrchard = BlauweKaarten.GetAndRemoveAppleOrchard();
-            AppleOrchardPBox.ImageLocation = Path.GetFullPath(AppleOrchard.image);
-            AppleOrchardL.Text = "6";
+            
+            WheatFieldPBox.ImageLocation = Path.GetFullPath(Kaart.WheatField.GetImage());
+            RanchPBox.ImageLocation = Path.GetFullPath(Kaart.Ranch.GetImage());
+            MinePBox.ImageLocation = Path.GetFullPath(Kaart.Mine.GetImage());
+            ForestPBox.ImageLocation = Path.GetFullPath(Kaart.Forest.GetImage()); ;
+            AppleOrchardPBox.ImageLocation = Path.GetFullPath(Kaart.AppleOrchard.GetImage());
 
             //Groene Speelkaarten
-            GroeneKaart Bakery = GroeneKaarten.GetAndRemoveBakery();
-            BakeryPBox.ImageLocation = Path.GetFullPath(Bakery.image);
-            BakeryL.Text = "6";
-
-            GroeneKaart ConvenienceStore = GroeneKaarten.GetAndRemoveConvenienceStore();
-            ConvenienceStorePBox.ImageLocation = Path.GetFullPath(ConvenienceStore.image);
-            ConvenienceStoreL.Text = "6";
-
-            GroeneKaart CheeseFactory = GroeneKaarten.GetAndRemoveCheeseFactory();
-            CheeseFactoryPBox.ImageLocation = Path.GetFullPath(CheeseFactory.image);
-            CheeseFactoryL.Text = "6";
-
-            GroeneKaart FurnitureFactory = GroeneKaarten.GetAndRemoveFurnitureFactory();
-            FurnitureFactoryPBox.ImageLocation = Path.GetFullPath(FurnitureFactory.image);
-            FurnitureFactoryL.Text = "6";
-
-            GroeneKaart FruitAndVegetableMarket = GroeneKaarten.GetAndRemoveFruitAndVegetableMarket();
-            FruitAndVegetableMarketPBox.ImageLocation = Path.GetFullPath(FruitAndVegetableMarket.image);
-            FruitAndVegetableMarketL.Text = "6";
+            BakeryPBox.ImageLocation = Path.GetFullPath(Kaart.Bakery.GetImage());
+            ConvenienceStorePBox.ImageLocation = Path.GetFullPath(Kaart.ConvenienceStore.GetImage());
+            CheeseFactoryPBox.ImageLocation = Path.GetFullPath(Kaart.CheeseFactory.GetImage());
+            FurnitureFactoryPBox.ImageLocation = Path.GetFullPath(Kaart.FurnitureFactory.GetImage());
+            FruitAndVegetableMarketPBox.ImageLocation = Path.GetFullPath(Kaart.FruitAndVegetableMarket.GetImage());
 
             //Rode Speelkaarten
-            RodeKaart Cafe = RodeKaarten.GetAndRemoveCafe();
-            CafePBox.ImageLocation = Path.GetFullPath(Cafe.image);
-            CafeL.Text = "6";
-
-            RodeKaart FamilyRestaurant = RodeKaarten.GetAndRemoveFamilyRestaurant();
-            FamilyRestaurantPBox.ImageLocation = Path.GetFullPath(FamilyRestaurant.image);
-            FamilyRestaurantL.Text = "6";
-
+            CafePBox.ImageLocation = Path.GetFullPath(Kaart.Cafe.GetImage());
+            FamilyRestaurantPBox.ImageLocation = Path.GetFullPath(Kaart.FamilyRestaurant.GetImage());
             //Paarse Speelkaarten
-            PaarseKaart BusinessCenter = PaarseKaarten.GetAndRemoveBusinessCenter();
-            BusinessCenterPBox.ImageLocation = Path.GetFullPath(BusinessCenter.image);
-            BusinessCenterL.Text = "4";
-
-            PaarseKaart TvStation = PaarseKaarten.GetAndRemoveTvStation();
-            TvStationPBox.ImageLocation = Path.GetFullPath(TvStation.image);
-            TvStationL.Text = "4";
-
-            PaarseKaart Stadium = PaarseKaarten.GetAndRemoveStadium();
-            StadiumPBox.ImageLocation = Path.GetFullPath(Stadium.image);
-            StadiumL.Text = "4";
+            BusinessCenterPBox.ImageLocation = Path.GetFullPath(Kaart.BusinessCenter.GetImage());
+            TvStationPBox.ImageLocation = Path.GetFullPath(Kaart.TvStation.GetImage());
+            StadiumPBox.ImageLocation = Path.GetFullPath(Kaart.Stadium.GetImage());
 
             //P1
-            OranjeKaart oranjekaart1 = OranjeKaarten.GetAndRemoveOranjeKaartB();
-            P1OK1.ImageLocation = Path.GetFullPath(oranjekaart1.image);
-            OranjeKaarten.RemoveOranjeKaartB();
-            OranjeKaart oranjekaart2 = OranjeKaarten.GetAndRemoveOranjeKaartB();
-            P1OK2.ImageLocation = Path.GetFullPath(oranjekaart2.image);
-            OranjeKaarten.RemoveOranjeKaartB();
-            OranjeKaart oranjekaart3 = OranjeKaarten.GetAndRemoveOranjeKaartB();
-            P1OK3.ImageLocation = Path.GetFullPath(oranjekaart3.image);
-            OranjeKaarten.RemoveOranjeKaartB();
-            OranjeKaart oranjekaart4 = OranjeKaarten.GetAndRemoveOranjeKaartB();
-            P1OK4.ImageLocation = Path.GetFullPath(oranjekaart4.image);
-            OranjeKaarten.RemoveOranjeKaartB();
+            P1OK1.ImageLocation = Path.GetFullPath("../../Resources/TrainStationB.png");
+            P1OK2.ImageLocation = Path.GetFullPath("../../Resources/ShoppingMallB.png");
+            P1OK3.ImageLocation = Path.GetFullPath("../../Resources/AmusementParkB.png");
+            P1OK4.ImageLocation = Path.GetFullPath("../../Resources/RadioTowerB.png");
 
             //P2
-            OranjeKaarten.NieuweOranjeKaartenB();
-            OranjeKaart oranjekaart5 = OranjeKaarten.GetAndRemoveOranjeKaartB();
-            P2OK1.ImageLocation = Path.GetFullPath(oranjekaart5.image);
-            OranjeKaarten.RemoveOranjeKaartB();
-            OranjeKaart oranjekaart6 = OranjeKaarten.GetAndRemoveOranjeKaartB();
-            P2OK2.ImageLocation = Path.GetFullPath(oranjekaart6.image);
-            OranjeKaarten.RemoveOranjeKaartB();
-            OranjeKaart oranjekaart7 = OranjeKaarten.GetAndRemoveOranjeKaartB();
-            P2OK3.ImageLocation = Path.GetFullPath(oranjekaart7.image);
-            OranjeKaarten.RemoveOranjeKaartB();
-            OranjeKaart oranjekaart8 = OranjeKaarten.GetAndRemoveOranjeKaartB();
-            P2OK4.ImageLocation = Path.GetFullPath(oranjekaart8.image);
-            OranjeKaarten.RemoveOranjeKaartB();
+            P2OK1.ImageLocation = Path.GetFullPath("../../Resources/TrainStationB.png");
+            P2OK2.ImageLocation = Path.GetFullPath("../../Resources/ShoppingMallB.png");
+            P2OK3.ImageLocation = Path.GetFullPath("../../Resources/AmusementParkB.png");
+            P2OK4.ImageLocation = Path.GetFullPath("../../Resources/RadioTowerB.png");
 
             //P3
-            OranjeKaarten.NieuweOranjeKaartenB();
-            OranjeKaart oranjekaart9 = OranjeKaarten.GetAndRemoveOranjeKaartB();
-            P3OK1.ImageLocation = Path.GetFullPath(oranjekaart9.image);
-            OranjeKaarten.RemoveOranjeKaartB();
-            OranjeKaart oranjekaart10 = OranjeKaarten.GetAndRemoveOranjeKaartB();
-            P3OK2.ImageLocation = Path.GetFullPath(oranjekaart10.image);
-            OranjeKaarten.RemoveOranjeKaartB();
-            OranjeKaart oranjekaart11 = OranjeKaarten.GetAndRemoveOranjeKaartB();
-            P3OK3.ImageLocation = Path.GetFullPath(oranjekaart11.image);
-            OranjeKaarten.RemoveOranjeKaartB();
-            OranjeKaart oranjekaart12 = OranjeKaarten.GetAndRemoveOranjeKaartB();
-            P3OK4.ImageLocation = Path.GetFullPath(oranjekaart12.image);
-            OranjeKaarten.RemoveOranjeKaartB();
+            P3OK1.ImageLocation = Path.GetFullPath("../../Resources/TrainStationB.png");
+            P3OK2.ImageLocation = Path.GetFullPath("../../Resources/ShoppingMallB.png");
+            P3OK3.ImageLocation = Path.GetFullPath("../../Resources/AmusementParkB.png");
+            P3OK4.ImageLocation = Path.GetFullPath("../../Resources/RadioTowerB.png");
 
             //P4
-            OranjeKaarten.NieuweOranjeKaartenB();
-            OranjeKaart oranjekaart13 = OranjeKaarten.GetAndRemoveOranjeKaartB();
-            P4OK1.ImageLocation = Path.GetFullPath(oranjekaart13.image);
-            OranjeKaarten.RemoveOranjeKaartB();
-            OranjeKaart oranjekaart14 = OranjeKaarten.GetAndRemoveOranjeKaartB();
-            P4OK2.ImageLocation = Path.GetFullPath(oranjekaart14.image);
-            OranjeKaarten.RemoveOranjeKaartB();
-            OranjeKaart oranjekaart15 = OranjeKaarten.GetAndRemoveOranjeKaartB();
-            P4OK3.ImageLocation = Path.GetFullPath(oranjekaart15.image);
-            OranjeKaarten.RemoveOranjeKaartB();
-            OranjeKaart oranjekaart16 = OranjeKaarten.GetAndRemoveOranjeKaartB();
-            P4OK4.ImageLocation = Path.GetFullPath(oranjekaart16.image);
-            OranjeKaarten.RemoveOranjeKaartB();
+            P4OK1.ImageLocation = Path.GetFullPath("../../Resources/TrainStationB.png");
+            P4OK2.ImageLocation = Path.GetFullPath("../../Resources/ShoppingMallB.png");
+            P4OK3.ImageLocation = Path.GetFullPath("../../Resources/AmusementParkB.png");
+            P4OK4.ImageLocation = Path.GetFullPath("../../Resources/RadioTowerB.png");
         }
 
         //Koop knoppen P1
         private void KoopP1_Click(object sender, EventArgs e)
         {
-            if (BalanceP1 >= 4)
+            if (Balances[0] >= 4)
             {
-                OranjeKaart oranjekaart1P1 = OranjeKaarten.GetAndRemoveOranjeKaart();
-                P1OK1.ImageLocation = Path.GetFullPath(oranjekaart1P1.image);
-                BalanceP1 -= 4;
+                P1OK1.ImageLocation = Path.GetFullPath("../../Resources/TrainStation.png");
+                Balances[0] -= 4;
                 KoopP1.Enabled = false;
-                BalP1.Text = "Balance: " + BalanceP1;
+                BalP1.Text = "Balance: " + Balances[0];
                 P1Kaarten += 1;
+                OranjeKaarten[0][0] = true;
                 WinChecker();
+                EindigBeurt();
             }
         }
 
         private void KoopP2_Click(object sender, EventArgs e)
         {
-            if (BalanceP1 >= 10)
+            if (Balances[0] >= 10)
             {
-                OranjeKaart oranjekaart2P1 = OranjeKaarten.GetAndRemoveOranjeKaart2();
-                P1OK2.ImageLocation = Path.GetFullPath(oranjekaart2P1.image);
-                BalanceP1 -= 10;
+                P1OK2.ImageLocation = Path.GetFullPath("../../Resources/ShoppingMall.png");
+                Balances[0] -= 10;
                 KoopP2.Enabled = false;
-                BalP1.Text = "Balance: " + BalanceP1;
+                BalP1.Text = "Balance: " + Balances[0];
                 P1Kaarten += 1;
+                OranjeKaarten[0][1] = true;
                 WinChecker();
+                EindigBeurt();
             }
         }
 
         private void KoopP3_Click(object sender, EventArgs e)
         {
-            if (BalanceP1 >= 16)
+            if (Balances[0] >= 16)
             {
-                OranjeKaart oranjekaart3P1 = OranjeKaarten.GetAndRemoveOranjeKaart3();
-                P1OK3.ImageLocation = Path.GetFullPath(oranjekaart3P1.image);
-                BalanceP1 -= 16;
+                P1OK3.ImageLocation = Path.GetFullPath("../../Resources/AmusementPark.png");
+                Balances[0] -= 16;
                 KoopP3.Enabled = false;
-                BalP1.Text = "Balance: " + BalanceP1;
+                BalP1.Text = "Balance: " + Balances[0];
                 P1Kaarten += 1;
+                OranjeKaarten[0][2] = true;
                 WinChecker();
+                EindigBeurt();
             }
         }
 
         private void KoopP4_Click(object sender, EventArgs e)
         {
-            if (BalanceP1 >= 22)
+            if (Balances[0] >= 22)
             {
-                OranjeKaart oranjekaart4P1 = OranjeKaarten.GetAndRemoveOranjeKaart4();
-                P1OK4.ImageLocation = Path.GetFullPath(oranjekaart4P1.image);
-                BalanceP1 -= 22;
+                P1OK4.ImageLocation = Path.GetFullPath("../../Resources/RadioTower.png");
+                Balances[0] -= 22;
                 KoopP4.Enabled = false;
-                BalP1.Text = "Balance: " + BalanceP1;
+                BalP1.Text = "Balance: " + Balances[0];
                 P1Kaarten += 1;
+                OranjeKaarten[0][3] = true;
                 WinChecker();
+                EindigBeurt();
             }
         }
 
@@ -290,57 +280,61 @@ namespace Machi_Koro
         //Koop knoppen P2
         private void KoopP5_Click(object sender, EventArgs e)
         {
-            if (BalanceP2 >= 4)
+            if (Balances[1] >= 4)
             {
-                OranjeKaart oranjekaart1P2 = OranjeKaarten.GetAndRemoveOranjeKaart();
-                P2OK1.ImageLocation = Path.GetFullPath(oranjekaart1P2.image);
-                BalanceP2 -= 4;
+                P2OK1.ImageLocation = Path.GetFullPath("../../Resources/TrainStation.png");
+                Balances[1] -= 4;
                 KoopP5.Enabled = false;
-                BalP2.Text = "Balance: " + BalanceP2;
+                BalP2.Text = "Balance: " + Balances[1];
                 P2Kaarten += 1;
+                OranjeKaarten[1][0] = true;
                 WinChecker();
+                EindigBeurt();
             }
         }
 
         private void KoopP6_Click(object sender, EventArgs e)
         {
-            if (BalanceP2 >= 10)
+            if (Balances[1] >= 10)
             {
-                OranjeKaart oranjekaart2P2 = OranjeKaarten.GetAndRemoveOranjeKaart2();
-                P2OK2.ImageLocation = Path.GetFullPath(oranjekaart2P2.image);
-                BalanceP2 -= 10;
+                P2OK2.ImageLocation = Path.GetFullPath("../../Resources/ShoppingMall.png");
+                Balances[1] -= 10;
                 KoopP6.Enabled = false;
-                BalP2.Text = "Balance: " + BalanceP2;
+                BalP2.Text = "Balance: " + Balances[1];
                 P2Kaarten += 1;
+                OranjeKaarten[1][1] = true;
                 WinChecker();
+                EindigBeurt();
             }
         }
 
         private void KoopP7_Click(object sender, EventArgs e)
         {
-            if (BalanceP2 >= 16)
+            if (Balances[1] >= 16)
             {
-                OranjeKaart oranjekaart3P2 = OranjeKaarten.GetAndRemoveOranjeKaart3();
-                P2OK3.ImageLocation = Path.GetFullPath(oranjekaart3P2.image);
-                BalanceP2 -= 16;
+                P2OK3.ImageLocation = Path.GetFullPath("../../Resources/AmusementPark.png");
+                Balances[1] -= 16;
                 KoopP7.Enabled = false;
-                BalP2.Text = "Balance: " + BalanceP2;
+                BalP2.Text = "Balance: " + Balances[1];
                 P2Kaarten += 1;
+                OranjeKaarten[1][2] = true;
                 WinChecker();
+                EindigBeurt();
             }
         }
 
         private void KoopP8_Click(object sender, EventArgs e)
         {
-            if (BalanceP2 >= 22)
+            if (Balances[1] >= 22)
             { 
-                OranjeKaart oranjekaart4P2 = OranjeKaarten.GetAndRemoveOranjeKaart4();
-                P2OK4.ImageLocation = Path.GetFullPath(oranjekaart4P2.image);
-                BalanceP2 -= 22;
+                P2OK4.ImageLocation = Path.GetFullPath("../../Resources/RadioTower.png");
+                Balances[1] -= 22;
                 KoopP8.Enabled = false;
-                BalP2.Text = "Balance: " + BalanceP2;
+                BalP2.Text = "Balance: " + Balances[1];
                 P2Kaarten += 1;
+                OranjeKaarten[1][3] = true;
                 WinChecker();
+                EindigBeurt();
             }
         }
 
@@ -348,57 +342,61 @@ namespace Machi_Koro
         //Koop knoppen P3
         private void KoopP9_Click(object sender, EventArgs e)
         {
-            if (BalanceP3 >= 4)
+            if (Balances[2] >= 4)
             {
-                OranjeKaart oranjekaart1P3 = OranjeKaarten.GetAndRemoveOranjeKaart();
-                P3OK1.ImageLocation = Path.GetFullPath(oranjekaart1P3.image);
-                BalanceP3 -= 4;
+                P3OK1.ImageLocation = Path.GetFullPath("../../Resources/TrainStation.png");
+                Balances[2] -= 4;
                 KoopP9.Enabled = false;
-                BalP3.Text = "Balance: " + BalanceP3;
+                BalP3.Text = "Balance: " + Balances[2];
                 P3Kaarten += 1;
+                OranjeKaarten[2][0] = true;
                 WinChecker();
+                EindigBeurt();
             }
         }
 
         private void KoopP10_Click(object sender, EventArgs e)
         {
-            if (BalanceP3 >= 10)
+            if (Balances[2] >= 10)
             {
-                OranjeKaart oranjekaart2P3 = OranjeKaarten.GetAndRemoveOranjeKaart2();
-                P3OK2.ImageLocation = Path.GetFullPath(oranjekaart2P3.image);
-                BalanceP3 -= 10;
+                P3OK2.ImageLocation = Path.GetFullPath("../../Resources/ShoppingMall.png");
+                Balances[2] -= 10;
                 KoopP10.Enabled = false;
-                BalP3.Text = "Balance: " + BalanceP3;
+                BalP3.Text = "Balance: " + Balances[2];
                 P3Kaarten += 1;
+                OranjeKaarten[2][1] = true;
                 WinChecker();
+                EindigBeurt();
             }
         }
 
         private void KoopP11_Click(object sender, EventArgs e)
         {
-            if (BalanceP3 >= 16)
+            if (Balances[2] >= 16)
             {
-                OranjeKaart oranjekaart3P3 = OranjeKaarten.GetAndRemoveOranjeKaart3();
-                P3OK3.ImageLocation = Path.GetFullPath(oranjekaart3P3.image);
-                BalanceP3 -= 16;
+                P3OK3.ImageLocation = Path.GetFullPath("../../Resources/AmusementPark.png");
+                Balances[2] -= 16;
                 KoopP11.Enabled = false;
-                BalP3.Text = "Balance: " + BalanceP3;
+                BalP3.Text = "Balance: " + Balances[2];
                 P3Kaarten += 1;
+                OranjeKaarten[2][2] = true;
                 WinChecker();
+                EindigBeurt();
             }
         }
 
         private void KoopP12_Click(object sender, EventArgs e)
         {
-            if (BalanceP3 >= 22)
+            if (Balances[2] >= 22)
             {
-                OranjeKaart oranjekaart4P3 = OranjeKaarten.GetAndRemoveOranjeKaart4();
-                P3OK4.ImageLocation = Path.GetFullPath(oranjekaart4P3.image);
-                BalanceP3 -= 22;
+                P3OK4.ImageLocation = Path.GetFullPath("../../Resources/RadioTower.png");
+                Balances[2] -= 22;
                 KoopP12.Enabled = false;
-                BalP3.Text = "Balance: " + BalanceP3;
+                BalP3.Text = "Balance: " + Balances[2];
                 P3Kaarten += 1;
+                OranjeKaarten[2][3] = true;
                 WinChecker();
+                EindigBeurt();
             }
         }
 
@@ -406,71 +404,98 @@ namespace Machi_Koro
         //Koop knoppen P4
         private void KoopP13_Click(object sender, EventArgs e)
         {
-            if (BalanceP4 >= 4)
+            if (Balances[3] >= 4)
             {
-                OranjeKaart oranjekaart1P4 = OranjeKaarten.GetAndRemoveOranjeKaart();
-                P4OK1.ImageLocation = Path.GetFullPath(oranjekaart1P4.image);
-                BalanceP4 -= 4;
+                P4OK1.ImageLocation = Path.GetFullPath("../../Resources/TrainStation.png");
+                Balances[3] -= 4;
                 KoopP13.Enabled = false;
-                BalP4.Text = "Balance: " + BalanceP4;
+                BalP4.Text = "Balance: " + Balances[3];
                 P4Kaarten += 1;
+                OranjeKaarten[3][0] = true;
                 WinChecker();
+                EindigBeurt();
             }
         }
 
         private void KoopP14_Click(object sender, EventArgs e)
         {
-            if (BalanceP4 >= 10)
+            if (Balances[3] >= 10)
             {
-                OranjeKaart oranjekaart2P4 = OranjeKaarten.GetAndRemoveOranjeKaart2();
-                P4OK2.ImageLocation = Path.GetFullPath(oranjekaart2P4.image);
-                BalanceP4 -= 10;
+                P4OK2.ImageLocation = Path.GetFullPath("../../Resources/ShoppingMall.png");
+                Balances[3] -= 10;
                 KoopP14.Enabled = false;
-                BalP4.Text = "Balance: " + BalanceP4;
+                BalP4.Text = "Balance: " + Balances[3];
                 P4Kaarten += 1;
+                OranjeKaarten[3][1] = true;
                 WinChecker();
+                EindigBeurt();
             }
         }
 
         private void KoopP15_Click(object sender, EventArgs e)
         {
-            if (BalanceP4 >= 16)
+            if (Balances[3] >= 16)
             {
-                OranjeKaart oranjekaart3P4 = OranjeKaarten.GetAndRemoveOranjeKaart3();
-                P4OK3.ImageLocation = Path.GetFullPath(oranjekaart3P4.image);
-                BalanceP4 -= 16;
+                P4OK3.ImageLocation = Path.GetFullPath("../../Resources/AmusementPark.png");
+                Balances[3] -= 16;
                 KoopP15.Enabled = false;
-                BalP4.Text = "Balance: " + BalanceP4;
+                BalP4.Text = "Balance: " + Balances[3];
                 P4Kaarten += 1;
+                OranjeKaarten[3][2] = true;
                 WinChecker();
+                EindigBeurt();
             }
         }
 
         private void KoopP16_Click(object sender, EventArgs e)
         {
-            if (BalanceP3 >= 22)
+            if (Balances[3] >= 22)
             {
-                OranjeKaart oranjekaart4P4 = OranjeKaarten.GetAndRemoveOranjeKaart4();
-                P4OK4.ImageLocation = Path.GetFullPath(oranjekaart4P4.image);
-                BalanceP4 -= 22;
+                P4OK4.ImageLocation = Path.GetFullPath("../../Resources/RadioTower.png");
+                Balances[3] -= 22;
                 KoopP16.Enabled = false;
-                BalP4.Text = "Balance: " + BalanceP4;
+                BalP4.Text = "Balance: " + Balances[3];
                 P4Kaarten += 1;
+                OranjeKaarten[3][3] = true;
                 WinChecker();
+                EindigBeurt();
             }
         }
-
+        public void UpdateBalance()
+        {
+            BalP1.Text = "Balance: " + Balances[0];
+            BalP2.Text = "Balance: " + Balances[1];
+            BalP3.Text = "Balance: " + Balances[2];
+            BalP4.Text = "Balance: " + Balances[3];
+        }
 
         public void KoopKnoppenUit()
         {
+            KoopKnoppen = new Button[][]
+            {
+                new Button[]{
+                    KoopP1,KoopP2,KoopP3,KoopP4
+                },
+                new Button[]{
+                    KoopP5,KoopP6,KoopP7,KoopP8
+                },
+                new Button[]{
+                    KoopP9,KoopP10,KoopP11,KoopP12
+                },
+                new Button[]{
+                    KoopP13,KoopP14,KoopP15,KoopP16
+                }
+            };
             KoopP1.Enabled = false;
             KoopP2.Enabled = false;
             KoopP3.Enabled = false;
             KoopP4.Enabled = false;
+
             KoopP5.Enabled = false;
             KoopP6.Enabled = false;
             KoopP7.Enabled = false;
             KoopP8.Enabled = false;
+
             KoopP9.Enabled = false;
             KoopP10.Enabled = false;
             KoopP11.Enabled = false;
@@ -522,30 +547,203 @@ namespace Machi_Koro
                 P4Kaarten = 0;
             }
         }
-        public void LabelBlank()
-        {
-            WheatFieldL.Text = "";
-            RanchL.Text = "";
-            MineL.Text = "";
-            ForestL.Text = "";
-            AppleOrchardL.Text = "";
-            BakeryL.Text = "";
-            ConvenienceStoreL.Text = "";
-            CheeseFactoryL.Text = "";
-            FurnitureFactoryL.Text = "";
-            FruitAndVegetableMarketL.Text = "";
-            CafeL.Text = "";
-            FamilyRestaurantL.Text = "";
-            BusinessCenterL.Text = "";
-            TvStationL.Text = "";
-            StadiumL.Text = "";
-        }
+
         public void CheckEffecten(int uitkomst)
         {
-            for (int speler = 0 ; speler < AantalSpelers; speler++)
+            for (int speler = 0 ; speler < 4; speler++)
             {
+                for (int i = 0 ; i < spelers[speler].SpelerKaarten.Count; i++)
+                {
+                    spelers[speler].SpelerKaarten[i].Effect(speler, uitkomst, HuidigeSpeler);
+                }
+            }
+            UpdateBalance();
+        }
+        
+        private void NumSpelerBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (NumSpelerBox.SelectedIndex == 0)
+            {
+                StartSpel.Enabled = false;
+            }
+            else
+            {
+                StartSpel.Enabled= true;
+            }
+        }
+        public void EindigBeurt()
+        {
+            if (doubles)
+            {
+                HuidigeSpeler -= 1;
+                doubles = false;
+            }
+            SpelerLabels[HuidigeSpeler].BackColor = Color.White;
+            SpelerLabels[HuidigeSpeler].ForeColor = Color.Black;
+            for (int button = 0 ; button < 4 ; button++)
+            {
+                KoopKnoppen[HuidigeSpeler][button].Enabled = false;
+            }
+            HuidigeSpeler = (HuidigeSpeler + 1) %4;
+            SpelerLabels[HuidigeSpeler].BackColor = Color.Black;
+            SpelerLabels[HuidigeSpeler].ForeColor = Color.White;
+            if (OranjeKaarten[HuidigeSpeler][0])
+            {
+                Dobbel2.Enabled = true;
+            }
+            else
+            {
+                Dobbel2.Enabled= false;
+                Dobbel2P.ImageLocation = null;
+            }
+            Dobbel1.Enabled = true;
+            EindigBeurtBtn.Enabled = false;
+            gerold = false;
+            if (HuidigeSpeler >= AantalMensen)
+            {
+                AIMethod(); 
+            }
+        }
+        public void AIMethod()
+        {
+            int speler = HuidigeSpeler;
+            if (OranjeKaarten[HuidigeSpeler][0])
+            {
+                Dobbel2_Click(null, null);
+            }
+            else
+            {
+                Dobbel1_Click(null, null);
+            }
+            if (!OranjeKaarten[HuidigeSpeler][0])
+            {
+                switch (HuidigeSpeler)
+                {
+                    case 1:
+                        KoopP5_Click(null, null);
+                        break;
+                    case 2:
+                        KoopP9_Click(null, null);
+                        break;
+                    case 3:
+                        KoopP13_Click(null, null);
+                        break;
+                }
 
             }
+            else if (!OranjeKaarten[HuidigeSpeler][1])
+            {
+                switch (HuidigeSpeler)
+                {
+                    case 1:
+                        KoopP6_Click(null, null);
+                        break;
+                    case 2:
+                        KoopP10_Click(null, null);
+                        break;
+                    case 3:
+                        KoopP14_Click(null, null);
+                        break;
+                }
+            }
+            else if (!OranjeKaarten[HuidigeSpeler][2])
+            {
+                switch (HuidigeSpeler)
+                {
+                    case 1:
+                        KoopP7_Click(null, null);
+                        break;
+                    case 2:
+                        KoopP11_Click(null, null);
+                        break;
+                    case 3:
+                        KoopP15_Click(null, null);
+                        break;
+                }
+            }
+            else if (!OranjeKaarten[HuidigeSpeler][3])
+            {
+                switch (HuidigeSpeler)
+                {
+                    case 1:
+                        KoopP8_Click(null, null);
+                        break;
+                    case 2:
+                        KoopP12_Click(null, null);
+                        break;
+                    case 3:
+                        KoopP16_Click(null, null);
+                        break;
+                }
+            }
+            if (speler == HuidigeSpeler)
+            {
+                List<Kaart> kaartopties = new List<Kaart>();
+                foreach (Kaart kaart in Enum.GetValues(typeof(Kaart)))
+                {
+                    if (Balances[HuidigeSpeler] >= kaart.GetKosten())
+                    {
+                        kaartopties.Add(kaart);
+                    }
+                }
+                if (kaartopties.Count > 0)
+                {
+                    KoopKaart2(kaartopties[rand.Next(kaartopties.Count)]);
+                }
+                else
+                {
+                    EindigBeurt();
+                }
+            }
+        }
+
+        private void EindigBeurtBtn_Click(object sender, EventArgs e)
+        {
+            EindigBeurt();
+        }
+        private void OpenPictureBox(object sender, EventArgs e)
+        {
+            if (((PictureBox)sender).Image == null)
+            {
+                return;
+            }
+            BigPicBox.Image = ((PictureBox)sender).Image;
+            BigPicBox.Visible = true;
+        }
+        private void ClosePictureBox(object sender, EventArgs e)
+        {
+            BigPicBox.Visible = false;
+        }
+        private void KoopKaart2(Kaart kaart)
+        {
+            if (gerold && Balances[HuidigeSpeler] >= kaart.GetKosten() && spelers[HuidigeSpeler].SpelerKaarten.Count < 16)
+            {
+                spelers[HuidigeSpeler].VoegKaartToe(kaart);
+                Balances[HuidigeSpeler] -= kaart.GetKosten();
+                UpdateBalance();
+                UpdateKaarten(HuidigeSpeler);
+                EindigBeurt();
+            }
+        }
+
+        private void KoopKaart(object sender, EventArgs e)
+        {
+            string naam = ((PictureBox)sender).Name.Substring(0, ((PictureBox)sender).Name.Length - 4);
+            Kaart kaart = (Kaart)Enum.Parse(typeof(Kaart), naam);
+            KoopKaart2(kaart);         
+        }
+        private void UpdateKaarten(int speler)
+        {
+            for (int i = 0; i < spelers[speler].SpelerKaarten.Count ; i++)
+            {
+                PlayerHands[speler][i].ImageLocation = Path.GetFullPath(spelers[speler].SpelerKaarten[i].GetImage());
+            }
+        }
+
+        private void SpelRegels_Click(object sender, EventArgs e)
+        {
+            Spelregels spelregels = new Spelregels();
+            spelregels.Show();
         }
     }
 }

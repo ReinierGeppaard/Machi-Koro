@@ -1,308 +1,234 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Machi_Koro
 {
-    class Kaart
+    enum Icoon
     {
-        public List<OranjeKaart> OranjeKaartenB;
-        public List<OranjeKaart> OranjeKaarten;
-        public List<BlauweKaart> WheatField;
-        public List<BlauweKaart> Ranch;
-        public List<BlauweKaart> Mine;
-        public List<BlauweKaart> Forest;
-        public List<BlauweKaart> AppleOrchard;
-        public List<GroeneKaart> Bakery;
-        public List<GroeneKaart> ConvenienceStore;
-        public List<GroeneKaart> CheeseFactory;
-        public List<GroeneKaart> FurnitureFactory;
-        public List<GroeneKaart> FruitAndVegetableMarket;
-        public List<RodeKaart> Cafe;
-        public List<RodeKaart> FamilyRestaurant;
-        public List<PaarseKaart> BusinessCenter;
-        public List<PaarseKaart> TvStation;
-        public List<PaarseKaart> Stadium;
+        Graan = 0,
+        Koe = 1,
+        Tandwiel = 2,
+        Brood = 3,
+        Fabriek = 4,
+        Kopje = 5,
+        Zwaard = 6,
+        Appel = 7
+    }
+    enum Kaart
+    {
+        WheatField = 0,
+        Ranch = 1,
+        Mine = 2,
+        Forest = 3,
+        AppleOrchard = 4,
+        Bakery = 5,
+        ConvenienceStore = 6,
+        CheeseFactory = 7,
+        FurnitureFactory = 8,
+        FruitAndVegetableMarket = 9,
+        Cafe = 10,
+        FamilyRestaurant = 11,
+        BusinessCenter = 12,
+        TvStation = 13,
+        Stadium = 14,
+    }
+    static class KaartMethods
+    {
+        static string[] images = new string[]
+        {
+            "../../Resources/WheatField.png",
+            "../../Resources/Ranch.png",
+            "../../Resources/Mine.png",
+            "../../Resources/Forest.png",
+            "../../Resources/AppleOrchard.png",
+            "../../Resources/Bakery.jpg",
+            "../../Resources/ConvenienceStore.png",
+            "../../Resources/CheeseFactory.png",
+            "../../Resources/FurnitureFactory.png",
+            "../../Resources/FruitAndVegetableMarket.png",
+            "../../Resources/Cafe.png",
+            "../../Resources/FamilyRestaurant.png",
+            "../../Resources/BusinessCenter.png",
+            "../../Resources/TvStation.png",
+            "../../Resources/Stadium.png",
+        };
+        static int[] kosten = new int[]
+        {
+            1, 1, 6, 3, 3, 1, 2, 5, 3, 2, 2, 3, 8, 7, 6
+        };
+        static float[] dobbelnummer = new float[]
+        {
+            1, 2, 9, 5, 10, 2.5f, 4, 7, 8, 11.5f, 3, 9.5f, 6, 6, 6
+        };
+        static Icoon[] iconen = new Icoon[]
+        {
+            Icoon.Graan, Icoon.Koe, Icoon.Tandwiel, Icoon.Tandwiel, Icoon.Graan, Icoon.Brood, Icoon.Brood, Icoon.Fabriek, 
+            Icoon.Fabriek, Icoon.Appel, Icoon.Kopje, Icoon.Kopje, Icoon.Zwaard, Icoon.Zwaard, Icoon.Zwaard
+        };
 
-        public string image { get; set; }
-        public int kost { get; set; }
-        public string effect { get; set; }
-        public Kaart()
+        public static float GetDobbelNummer(this Kaart kaart)
+        {
+            return dobbelnummer[(int)kaart];
+        }
+        public static int GetKosten(this Kaart kaart)
+        {
+            return kosten[(int)kaart];
+        }
+        public static Icoon GetIcoon(this Kaart kaart)
+        {
+            return iconen[(int)kaart];
+        }
+        public static string GetImage(this Kaart kaart)
+        {
+            return images[(int)kaart];
+        }
+        public static bool Effect(this Kaart kaart, int speler, int dobbeluitkomst, int huidigespeler)
+        {
+            bool uitkomst = Effect2(kaart, speler, dobbeluitkomst, huidigespeler);
+            if (uitkomst && Form1.OranjeKaarten[speler][1] && (kaart.GetIcoon() == Icoon.Brood || (kaart.GetIcoon() == Icoon.Kopje)))
+            {
+                Form1.Balances[speler] += 1;
+            }
+            return uitkomst;
+        }
+            public static bool Effect2(this Kaart kaart, int speler, int dobbeluitkomst, int huidigespeler)
+        {
+            if (Math.Ceiling(kaart.GetDobbelNummer()) == dobbeluitkomst || Math.Floor(kaart.GetDobbelNummer()) == dobbeluitkomst)
+            {
+                switch(kaart)
+                {
+                    case Kaart.WheatField:
+                        Form1.Balances[speler] += 1;
+                        return true;
+                    case Kaart.Ranch:
+                        Form1.Balances[speler] += 1;
+                        return true;
+                    case Kaart.Mine:
+                        Form1.Balances[speler] += 5;
+                        return true;
+                    case Kaart.Forest:
+                        Form1.Balances[speler] += 1;
+                        return true;
+                    case Kaart.AppleOrchard:
+                        Form1.Balances[speler] += 3;
+                        return true;
+                    case Kaart.Bakery:
+                        if (speler == huidigespeler)
+                        {
+                            Form1.Balances[speler] += 1;
+                            return true;
+                        }
+                        return false;
+                    case Kaart.ConvenienceStore:
+                        if (speler == huidigespeler)
+                        {
+                            Form1.Balances[speler] += 3;
+                            return true;
+                        }
+                        return false;
 
-            //Oranje kaarten lijsten
-        {
-            OranjeKaarten = new List<OranjeKaart>()
-            {
-                new OranjeKaart() { image = "../../Resources/TrainStation.png", kost = 4, effect = "" },
-                new OranjeKaart() { image = "../../Resources/ShoppingMall.png", kost = 10, effect = "" },
-                new OranjeKaart() { image = "../../Resources/AmusementPark.png", kost = 16, effect = "" },
-                new OranjeKaart() { image = "../../Resources/RadioTower.png", kost = 22, effect = "" }
-            };
-            OranjeKaartenB = new List<OranjeKaart>()
-            {
-                new OranjeKaart() { image = "../../Resources/TrainStationB.png", kost = 4, effect = "" },
-                new OranjeKaart() { image = "../../Resources/ShoppingMallB.png", kost = 10, effect = "" },
-                new OranjeKaart() { image = "../../Resources/AmusementParkB.png", kost = 16, effect = "" },
-                new OranjeKaart() { image = "../../Resources/RadioTowerB.png", kost = 22, effect = "" }
-            };
-            //Blauwe kaarten lijsten
-            WheatField = new List<BlauweKaart>()
-            {
-                new BlauweKaart() { image = "../../Resources/WheatField.png", kost = 1, nummer = 1, icoon = "", effect = "" },
-                new BlauweKaart() { image = "../../Resources/WheatField.png", kost = 1, nummer = 1, icoon = "", effect = "" },
-                new BlauweKaart() { image = "../../Resources/WheatField.png", kost = 1, nummer = 1, icoon = "", effect = "" },
-                new BlauweKaart() { image = "../../Resources/WheatField.png", kost = 1, nummer = 1, icoon = "", effect = "" },
-                new BlauweKaart() { image = "../../Resources/WheatField.png", kost = 1, nummer = 1, icoon = "", effect = "" },
-                new BlauweKaart() { image = "../../Resources/WheatField.png", kost = 1, nummer = 1, icoon = "", effect = "" }
-            };
-            Ranch = new List<BlauweKaart>()
-            {
-                new BlauweKaart() { image = "../../Resources/Ranch.png", kost = 1, nummer = 2, icoon = "", effect = "" },
-                new BlauweKaart() { image = "../../Resources/Ranch.png", kost = 1, nummer = 2, icoon = "", effect = "" },
-                new BlauweKaart() { image = "../../Resources/Ranch.png", kost = 1, nummer = 2, icoon = "", effect = "" },
-                new BlauweKaart() { image = "../../Resources/Ranch.png", kost = 1, nummer = 2, icoon = "", effect = "" },
-                new BlauweKaart() { image = "../../Resources/Ranch.png", kost = 1, nummer = 2, icoon = "", effect = "" },
-                new BlauweKaart() { image = "../../Resources/Ranch.png", kost = 1, nummer = 2, icoon = "", effect = "" }
-            };
-            Mine = new List<BlauweKaart>()
-            {
-                new BlauweKaart() { image = "../../Resources/Mine.png", kost = 6, nummer = 9, icoon = "", effect = "" },
-                new BlauweKaart() { image = "../../Resources/Mine.png", kost = 6, nummer = 9, icoon = "", effect = "" },
-                new BlauweKaart() { image = "../../Resources/Mine.png", kost = 6, nummer = 9, icoon = "", effect = "" },
-                new BlauweKaart() { image = "../../Resources/Mine.png", kost = 6, nummer = 9, icoon = "", effect = "" },
-                new BlauweKaart() { image = "../../Resources/Mine.png", kost = 6, nummer = 9, icoon = "", effect = "" },
-                new BlauweKaart() { image = "../../Resources/Mine.png", kost = 6, nummer = 9, icoon = "", effect = "" }
-            };
-            Forest = new List<BlauweKaart>()
-            {
-                new BlauweKaart() { image = "../../Resources/Forest.png", kost = 3, nummer = 5, icoon = "", effect = "" },
-                new BlauweKaart() { image = "../../Resources/Forest.png", kost = 3, nummer = 5, icoon = "", effect = "" },
-                new BlauweKaart() { image = "../../Resources/Forest.png", kost = 3, nummer = 5, icoon = "", effect = "" },
-                new BlauweKaart() { image = "../../Resources/Forest.png", kost = 3, nummer = 5, icoon = "", effect = "" },
-                new BlauweKaart() { image = "../../Resources/Forest.png", kost = 3, nummer = 5, icoon = "", effect = "" },
-                new BlauweKaart() { image = "../../Resources/Forest.png", kost = 3, nummer = 5, icoon = "", effect = "" }
-            };
-            AppleOrchard = new List<BlauweKaart>()
-            {
-                new BlauweKaart() { image = "../../Resources/AppleOrchard.png", kost = 3, nummer = 10, icoon = "", effect = "" },
-                new BlauweKaart() { image = "../../Resources/AppleOrchard.png", kost = 3, nummer = 10, icoon = "", effect = "" },
-                new BlauweKaart() { image = "../../Resources/AppleOrchard.png", kost = 3, nummer = 10, icoon = "", effect = "" },
-                new BlauweKaart() { image = "../../Resources/AppleOrchard.png", kost = 3, nummer = 10, icoon = "", effect = "" },
-                new BlauweKaart() { image = "../../Resources/AppleOrchard.png", kost = 3, nummer = 10, icoon = "", effect = "" },
-                new BlauweKaart() { image = "../../Resources/AppleOrchard.png", kost = 3, nummer = 10, icoon = "", effect = "" }
-            };
-            //Groene kaarten lijsten
-            Bakery = new List<GroeneKaart>()
-            {
-                new GroeneKaart() { image = "../../Resources/Bakery.jpg", kost = 1, nummer = 3, icoon = "", effect = "" },
-                new GroeneKaart() { image = "../../Resources/Bakery.jpg", kost = 1, nummer = 3, icoon = "", effect = "" },
-                new GroeneKaart() { image = "../../Resources/Bakery.jpg", kost = 1, nummer = 3, icoon = "", effect = "" },
-                new GroeneKaart() { image = "../../Resources/Bakery.jpg", kost = 1, nummer = 3, icoon = "", effect = "" },
-                new GroeneKaart() { image = "../../Resources/Bakery.jpg", kost = 1, nummer = 3, icoon = "", effect = "" },
-                new GroeneKaart() { image = "../../Resources/Bakery.jpg", kost = 1, nummer = 3, icoon = "", effect = "" }
-            };
-            ConvenienceStore = new List<GroeneKaart>()
-            {
-                new GroeneKaart() { image = "../../Resources/ConvenienceStore.png", kost = 2, nummer = 4, icoon = "", effect = "" },
-                new GroeneKaart() { image = "../../Resources/ConvenienceStore.png", kost = 2, nummer = 4, icoon = "", effect = "" },
-                new GroeneKaart() { image = "../../Resources/ConvenienceStore.png", kost = 2, nummer = 4, icoon = "", effect = "" },
-                new GroeneKaart() { image = "../../Resources/ConvenienceStore.png", kost = 2, nummer = 4, icoon = "", effect = "" },
-                new GroeneKaart() { image = "../../Resources/ConvenienceStore.png", kost = 2, nummer = 4, icoon = "", effect = "" },
-                new GroeneKaart() { image = "../../Resources/ConvenienceStore.png", kost = 2, nummer = 4, icoon = "", effect = "" }
-            };
-            CheeseFactory = new List<GroeneKaart>()
-            {
-                new GroeneKaart() { image = "../../Resources/CheeseFactory.png", kost = 5, nummer = 7, icoon = "", effect = "" },
-                new GroeneKaart() { image = "../../Resources/CheeseFactory.png", kost = 5, nummer = 7, icoon = "", effect = "" },
-                new GroeneKaart() { image = "../../Resources/CheeseFactory.png", kost = 5, nummer = 7, icoon = "", effect = "" },
-                new GroeneKaart() { image = "../../Resources/CheeseFactory.png", kost = 5, nummer = 7, icoon = "", effect = "" },
-                new GroeneKaart() { image = "../../Resources/CheeseFactory.png", kost = 5, nummer = 7, icoon = "", effect = "" },
-                new GroeneKaart() { image = "../../Resources/CheeseFactory.png", kost = 5, nummer = 7, icoon = "", effect = "" }
-            };
-            FurnitureFactory = new List<GroeneKaart>()
-            {
-                new GroeneKaart() { image = "../../Resources/FurnitureFactory.png", kost = 3, nummer = 8, icoon = "", effect = "" },
-                new GroeneKaart() { image = "../../Resources/FurnitureFactory.png", kost = 3, nummer = 8, icoon = "", effect = "" },
-                new GroeneKaart() { image = "../../Resources/FurnitureFactory.png", kost = 3, nummer = 8, icoon = "", effect = "" },
-                new GroeneKaart() { image = "../../Resources/FurnitureFactory.png", kost = 3, nummer = 8, icoon = "", effect = "" },
-                new GroeneKaart() { image = "../../Resources/FurnitureFactory.png", kost = 3, nummer = 8, icoon = "", effect = "" },
-                new GroeneKaart() { image = "../../Resources/FurnitureFactory.png", kost = 3, nummer = 8, icoon = "", effect = "" }
-            };
-            FruitAndVegetableMarket = new List<GroeneKaart>()
-            {
-                new GroeneKaart() { image = "../../Resources/FruitAndVegetableMarket.png", kost = 2, nummer = 11, icoon = "", effect = "" },
-                new GroeneKaart() { image = "../../Resources/FruitAndVegetableMarket.png", kost = 2, nummer = 11, icoon = "", effect = "" },
-                new GroeneKaart() { image = "../../Resources/FruitAndVegetableMarket.png", kost = 2, nummer = 11, icoon = "", effect = "" },
-                new GroeneKaart() { image = "../../Resources/FruitAndVegetableMarket.png", kost = 2, nummer = 11, icoon = "", effect = "" },
-                new GroeneKaart() { image = "../../Resources/FruitAndVegetableMarket.png", kost = 2, nummer = 11, icoon = "", effect = "" },
-                new GroeneKaart() { image = "../../Resources/FruitAndVegetableMarket.png", kost = 2, nummer = 11, icoon = "", effect = "" }
-            };
-            //Rode kaarten lijsten
-            Cafe = new List<RodeKaart>()
-            {
-                new RodeKaart() { image = "../../Resources/Cafe.png", kost = 2, nummer = 3, icoon = "", effect = "" },
-                new RodeKaart() { image = "../../Resources/Cafe.png", kost = 2, nummer = 3, icoon = "", effect = "" },
-                new RodeKaart() { image = "../../Resources/Cafe.png", kost = 2, nummer = 3, icoon = "", effect = "" },
-                new RodeKaart() { image = "../../Resources/Cafe.png", kost = 2, nummer = 3, icoon = "", effect = "" },
-                new RodeKaart() { image = "../../Resources/Cafe.png", kost = 2, nummer = 3, icoon = "", effect = "" },
-                new RodeKaart() { image = "../../Resources/Cafe.png", kost = 2, nummer = 3, icoon = "", effect = "" }
-            };
-            FamilyRestaurant = new List<RodeKaart>()
-            {
-                new RodeKaart() { image = "../../Resources/FamilyRestaurant.png", kost = 3, nummer = 9, icoon = "", effect = "" },
-                new RodeKaart() { image = "../../Resources/FamilyRestaurant.png", kost = 3, nummer = 9, icoon = "", effect = "" },
-                new RodeKaart() { image = "../../Resources/FamilyRestaurant.png", kost = 3, nummer = 9, icoon = "", effect = "" },
-                new RodeKaart() { image = "../../Resources/FamilyRestaurant.png", kost = 3, nummer = 9, icoon = "", effect = "" },
-                new RodeKaart() { image = "../../Resources/FamilyRestaurant.png", kost = 3, nummer = 9, icoon = "", effect = "" },
-                new RodeKaart() { image = "../../Resources/FamilyRestaurant.png", kost = 3, nummer = 9, icoon = "", effect = "" }
-            };
-            //Paarse kaarten lijsten
-            BusinessCenter = new List<PaarseKaart>()
-            {
-                new PaarseKaart() { image = "../../Resources/BusinessCenter.png", kost = 8, nummer = 6, icoon = "", effect = "" },
-                new PaarseKaart() { image = "../../Resources/BusinessCenter.png", kost = 8, nummer = 6, icoon = "", effect = "" },
-                new PaarseKaart() { image = "../../Resources/BusinessCenter.png", kost = 8, nummer = 6, icoon = "", effect = "" },
-                new PaarseKaart() { image = "../../Resources/BusinessCenter.png", kost = 8, nummer = 6, icoon = "", effect = "" }
-            };
-            TvStation = new List<PaarseKaart>()
-            {
-                new PaarseKaart() { image = "../../Resources/TvStation.png", kost = 7, nummer = 6, icoon = "", effect = "" },
-                new PaarseKaart() { image = "../../Resources/TvStation.png", kost = 7, nummer = 6, icoon = "", effect = "" },
-                new PaarseKaart() { image = "../../Resources/TvStation.png", kost = 7, nummer = 6, icoon = "", effect = "" },
-                new PaarseKaart() { image = "../../Resources/TvStation.png", kost = 7, nummer = 6, icoon = "", effect = "" }
-            };
-            Stadium = new List<PaarseKaart>()
-            {
-                new PaarseKaart() { image = "../../Resources/Stadium.png", kost = 6, nummer = 6, icoon = "", effect = "" },
-                new PaarseKaart() { image = "../../Resources/Stadium.png", kost = 6, nummer = 6, icoon = "", effect = "" },
-                new PaarseKaart() { image = "../../Resources/Stadium.png", kost = 6, nummer = 6, icoon = "", effect = "" },
-                new PaarseKaart() { image = "../../Resources/Stadium.png", kost = 6, nummer = 6, icoon = "", effect = "" }
-            };
-        }
+                    case Kaart.CheeseFactory:
+                        if (speler == huidigespeler)
+                        {
+                            int som = 0;
+                            for (int i = 0; i < Form1.spelers[speler].SpelerKaarten.Count; i++)
+                            {
 
-        //Oranje kaarten methods
-        public OranjeKaart GetAndRemoveOranjeKaart()
-        {
-            OranjeKaart oranjeKaart = OranjeKaarten[0];
-            return oranjeKaart;
-        }
-        public OranjeKaart GetAndRemoveOranjeKaart2()
-        {
-            OranjeKaart oranjeKaart = OranjeKaarten[1];
-            return oranjeKaart;
-        }
-        public OranjeKaart GetAndRemoveOranjeKaart3()
-        {
-            OranjeKaart oranjeKaart = OranjeKaarten[2];
-            return oranjeKaart;
-        }
-        public OranjeKaart GetAndRemoveOranjeKaart4()
-        {
-            OranjeKaart oranjeKaart = OranjeKaarten[3];
-            return oranjeKaart;
-        }
-        //Blauwe kaarten methods
-        public BlauweKaart GetAndRemoveWheatField()
-        {
-            BlauweKaart WheatFields = WheatField[0];
-            return WheatFields;
-        }
-        public BlauweKaart GetAndRemoveRanch()
-        {
-            BlauweKaart Ranchs = Ranch[0];
-            return Ranchs;
-        }
-        public BlauweKaart GetAndRemoveMine()
-        {
-            BlauweKaart Mines = Mine[0];
-            return Mines;
-        }
-        public BlauweKaart GetAndRemoveForest()
-        {
-            BlauweKaart Forests = Forest[0];
-            return Forests;
-        }
-        public BlauweKaart GetAndRemoveAppleOrchard()
-        {
-            BlauweKaart AppleOrchards = AppleOrchard[0];
-            return AppleOrchards;
-        }
-        //Groene kaarten methods
-        public GroeneKaart GetAndRemoveBakery()
-        {
-            GroeneKaart Bakerys = Bakery[0];
-            return Bakerys;
-        }
-        public GroeneKaart GetAndRemoveConvenienceStore()
-        {
-            GroeneKaart ConvenienceStores = ConvenienceStore[0];
-            return ConvenienceStores;
-        }
-        public GroeneKaart GetAndRemoveCheeseFactory()
-        {
-            GroeneKaart CheeseFactorys = CheeseFactory[0];
-            return CheeseFactorys;
-        }
-        public GroeneKaart GetAndRemoveFurnitureFactory()
-        {
-            GroeneKaart FurnitureFactorys = FurnitureFactory[0];
-            return FurnitureFactorys;
-        }
-        public GroeneKaart GetAndRemoveFruitAndVegetableMarket()
-        {
-            GroeneKaart FruitAndVegetableMarkets = FruitAndVegetableMarket[0];
-            return FruitAndVegetableMarkets;
-        }
-        //Rode kaarten methods
-        public RodeKaart GetAndRemoveCafe()
-        {
-            RodeKaart Cafes = Cafe[0];
-            return Cafes;
-        }
-        public RodeKaart GetAndRemoveFamilyRestaurant()
-        {
-            RodeKaart FamilyRestaurants = FamilyRestaurant[0];
-            return FamilyRestaurants;
-        }
-        //Paarse kaarten methods
-        public PaarseKaart GetAndRemoveBusinessCenter()
-        {
-            PaarseKaart BusinessCenters = BusinessCenter[0];
-            return BusinessCenters;
-        }
-        public PaarseKaart GetAndRemoveTvStation()
-        {
-            PaarseKaart TvStations = TvStation[0];
-            return TvStations;
-        }
-        public PaarseKaart GetAndRemoveStadium()
-        {
-            PaarseKaart Stadiums = Stadium[0];
-            return Stadiums;
-        }
+                                if (Form1.spelers[speler].SpelerKaarten[i].GetIcoon() == Icoon.Koe)
+                                {
+                                    som++;
+                                }
+                            }
+                            Form1.Balances[speler] += som * 3;
+                            return true;
+                        }
+                        return false;
+                    case Kaart.FurnitureFactory:
+                        if (speler == huidigespeler)
+                        {
+                            int som = 0;
+                            for (int i = 0; i < Form1.spelers[speler].SpelerKaarten.Count; i++)
+                            {
 
+                                if (Form1.spelers[speler].SpelerKaarten[i].GetIcoon() == Icoon.Tandwiel)
+                                {
+                                    som++;
+                                }
+                            }
+                            Form1.Balances[speler] += som * 3;
+                            return true;
+                        }
+                        return false;
+                    case Kaart.FruitAndVegetableMarket:
+                        if (speler == huidigespeler)
+                        {
+                            int som = 0;
+                            for (int i = 0; i < Form1.spelers[speler].SpelerKaarten.Count; i++)
+                            {
 
+                                if (Form1.spelers[speler].SpelerKaarten[i].GetIcoon() == Icoon.Graan)
+                                {
+                                    som++;
+                                }
+                            }
+                            Form1.Balances[speler] += som * 2;
+                            return true;
+                        }
+                        return false;
+                    case Kaart.Cafe:
+                        if (Form1.Balances[huidigespeler] == 0)
+                        {
+                            return false;
+                        }
+                        Form1.Balances[huidigespeler] -= 1;
+                        Form1.Balances[speler] += 1;
+                        return true;
 
+                    case Kaart.FamilyRestaurant:
+                        if (Form1.Balances[huidigespeler] == 0)
+                        {
+                            return false;
+                        }
+                        if (Form1.Balances[huidigespeler] == 1)
+                        {
+                            Form1.Balances[huidigespeler] -= 1;
+                            Form1.Balances[speler] += 1;
+                            return true;
+                        }
+                        Form1.Balances[huidigespeler] -= 2;
+                        Form1.Balances[speler] += 2;
+                        return true;
 
+                        //Geen idee
+                    case Kaart.BusinessCenter:
+                        return false;
+                    case Kaart.TvStation:
+                        return true;
 
-
-        public void RemoveOranjeKaartB()
-        {
-            OranjeKaartenB.RemoveAt(0);
-        }
-        public void RemoveOranjeKaart()
-        {
-            OranjeKaarten.RemoveAt(0);
-        }
-        public void NieuweOranjeKaartenB()
-        {
-            OranjeKaartenB.Add(new OranjeKaart() { image = "../../Resources/TrainStationB.png", kost = 4, effect = "" });
-            OranjeKaartenB.Add(new OranjeKaart() { image = "../../Resources/ShoppingMallB.png", kost = 10, effect = "" });
-            OranjeKaartenB.Add(new OranjeKaart() { image = "../../Resources/AmusementParkB.png", kost = 16, effect = "" });
-            OranjeKaartenB.Add(new OranjeKaart() { image = "../../Resources/RadioTowerB.png", kost = 22, effect = "" });
-        }
-        public OranjeKaart GetAndRemoveOranjeKaartB()
-        {
-            OranjeKaart oranjekaartb = OranjeKaartenB[0];
-            return oranjekaartb;
+                    case Kaart.Stadium:
+                        if (speler == huidigespeler)
+                        {
+                            for (int i = 0; i < 4 ; i++)
+                            {
+                                if (i != speler)
+                                {
+                                    int AantalMunten = Math.Min(2, Form1.Balances[i]);
+                                    Form1.Balances[i] -= AantalMunten;
+                                    Form1.Balances[speler] += AantalMunten;
+                                    
+                                }
+                            }
+                            return true;
+                        }
+                        return false;
+                    default: 
+                        return false;
+                }
+            }
+            return false;
         }
     }
 }
